@@ -19,4 +19,6 @@ body{
     background: radial-gradient(closest-side at 50% 78%, rgba(255,255,255, 0.6), transparent), radial-gradient(closest-side at 50% 24%, rgba(255,255,255, .6) 0, rgba(255,255,255, 0.6) 54%, transparent 62%), rgba(255, 255, 255, 0.2);
     border-radius: 100%;
     position: absolute;
+    width: 20px;
+    height: 20px;
 }

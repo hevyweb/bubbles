@@ -1,7 +1,8 @@
+var bub;
 $('document').ready(function(){
-    $('body').click(function(e){
-        var bub = new bubble();
-        bub.init();
+    $('body').mousedown(function(e){
+        bub = new bubble();
+        bub.init(e);
     });
 });
 
@@ -9,35 +10,29 @@ var bubble = function(){
     return {
         bubble: null,
 
-        init: function(){
-            var self = this;
-            var randomSize = 4*Math.floor(Math.random()*20);
-            var bubble = this.gen().appendTo('body').click(function(e){
-                e.stopPropagation();
-                self.pop(e);
-            });
-            var bubbleJar = bubble.parent();
-            var randomTop = 500;
-            var randomLeft = bubbleJar.width() * 0.1 + parseInt(bubbleJar.width() * 0.8 * Math.random());
-
-            bubble.css({
-                'width': randomSize,
-                'height': randomSize,
-                'top': randomTop,
-                'left': randomLeft
-            });
-            this.float();
+        init: function(e){
+            e.stopPropagation();
+            this.gen().appendTo(e.delegateTarget);
+            this.blow(e.pageX, e.pageY);
         },
 
         gen: function(){
-            this.bubble = $('<div />').addClass('bubble');
+            var self = this;
+            this.bubble = $('<div />').addClass('bubble')
+                .mousedown(function(e){
+                    e.stopPropagation();
+                    self.pop(e);
+                }).mouseup(function(e){
+                    e.stopPropagation();
+                    self.bubble.float();
+                });
             return this.bubble;
         },
 
         float: function(){
             var bubbleJar = this.bubble.parent();
             var self = this;
-            this.bubble.animate({
+            this.bubble.stop().animate({
                 'top': bubbleJar.height() * 0.1,
                 'height': '+=60',
                 'width': '+=60'
@@ -50,6 +45,25 @@ var bubble = function(){
                 }
             });
             this.horizontalFloat();
+        },
+
+        blow: function(x, y){
+            var self = this;
+            this.bubble.css({
+                'top': parseInt(y - this.bubble.height()/2),
+                'left': parseInt(x - this.bubble.width()/2)
+            }).animate({
+                'top': '-=30',
+                'left': '-=30',
+                'width': '+=80',
+                'height': '+=80'
+            }, {
+                duration: 5000,
+                easing: 'linear',
+                complete: function () {
+                    self.pop();
+                }
+            });
         },
 
         horizontalFloat: function(){
@@ -75,8 +89,7 @@ var bubble = function(){
             });
         },
 
-        pop: function(e){
-
+        pop: function(){
             var self = this;
             var newSize = parseInt(self.bubble.width()*1.5);
             var left = this.bubble.offset().left - self.bubble.width()*0.25;
@@ -89,6 +102,7 @@ var bubble = function(){
                 top: top
             }, 200, function(){
                 this.remove();
+                delete self;
             });
         }
     }
